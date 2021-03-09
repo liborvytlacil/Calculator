@@ -271,13 +271,21 @@ void test() {
 	testStatement("-8%-3", -2.0);
 	testStatement("let x = 3", 3.0);
 	testStatement("let x = 2 (x + 2) * 3", 12.0);
+	testStatement("sqrt(25)", 5.0);
 	cout << "-----------------------------------------" << endl;
 }
 
+void printHelp() {
+	cout << "Type floating point expressions with operators +, -, *, / and %." << endl;
+	cout << "Use 'sqrt' to compute a square root, e.g. 'sqrt(4)'." << endl;
+	cout << "Define a variable with the following syntax: 'let x = 5'" << endl;
+	cout << "You can then use a variable you defined in subsequent expressions." << endl;
+}
+
 int main() {
-	test();
-	cout << endl << "Keep entering expressions with floating point numbers, +, -, *, / and parentheses." << endl;
-	cout << "Terminate an expression with ';', exit program by typing 'q'." << endl << endl;
+	//test();
+	cout << endl << "Command line calculator." << endl;
+	cout << "Type 'q' to exit, type 'h' for help." << endl << endl;
 
 	VarTable varTable;
 	varTable.define("pi", 3.1415926535);
@@ -291,18 +299,23 @@ int main() {
 		getline(cin, input);
 
 		// 'q' means exit the program
-		if (input == "q") {
+		if (input == "q" || input == "Q") {
 			break;
 		}
- 
-		istringstream inputStream(input);
-		TokenStream ts(inputStream);
-
-		try {
-			cout << msgResult << calculation(ts, varTable) << endl;
+		else if (input == "h" || input == "H") {
+			printHelp();
 		}
-		catch (runtime_error& e) {
-			cerr << e.what() << endl;
+		else {
+			// read and process a single line of standard input
+			istringstream inputStream(input);
+			TokenStream ts(inputStream);
+
+			try {
+				cout << msgResult << calculation(ts, varTable) << endl;
+			}
+			catch (runtime_error& e) {
+				cerr << e.what() << endl;
+			}
 		}
 	}
 
