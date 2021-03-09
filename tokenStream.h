@@ -20,7 +20,8 @@ enum class TokenType {
 	UNKNOWN,
 	KW_LET,
 	EQUALS,
-	NAME
+	NAME,
+	SQRT
 };
 
 class Token {
@@ -110,6 +111,9 @@ private:
 
 		if (name == "let") {
 			return Token{ TokenType::KW_LET };
+		}
+		else if (name == "sqrt") {
+			return Token{ TokenType::SQRT };
 		}
 
 		return Token{ name };

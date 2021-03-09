@@ -1,7 +1,7 @@
 /*
 author: Libor Vytlacil
- A simple REPL for arithmetic expressions involving floating point numbers, +, -, *, /, % and parentheses
- and variable declaration and usage.
+ A simple REPL for arithmetic expressions involving floating point numbers, +, -, *, /, %, parentheses,
+ variable declaration and usage and the function sqrt.
 
  The prompt accepts a line of input at a time which it then parses, evaluates and prints its result.
  The evaluation is based on the following grammar. Any defined variable remains stored for subsequent
@@ -38,6 +38,7 @@ author: Libor Vytlacil
 	Number
 	<name>
 	'(' Expression ')'
+	'sqrt(' Expression ')' // square root function
 
  Number ->
 	floating-point literal
@@ -63,6 +64,26 @@ using namespace std;
 // prototypes
 double expression(TokenStream& ts, VarTable& varTable);
 
+double squareRoot(TokenStream& ts, VarTable& varTable) {
+	Token token = ts.get();
+
+	if (token.kind != TokenType::LPAREN) {
+		throw runtime_error("Expected '(' after function 'sqrt'");
+	}
+
+	double argument = expression(ts, varTable);
+	if (argument < 0.0) {
+		throw runtime_error("Argument of 'sqrt' function must not be negative.");
+	}
+
+	token = ts.get();
+	if (token.kind != TokenType::RPAREN) {
+		throw runtime_error("Expected ')' after the argument of 'sqrt' function.");
+	}
+
+	return sqrt(argument);
+}
+
 // handles 'primary ->' production rules
 double primary(TokenStream& ts, VarTable& varTable) {
 	Token token = ts.get();
@@ -83,6 +104,8 @@ double primary(TokenStream& ts, VarTable& varTable) {
 		return token.value;
 	case TokenType::NAME:
 		return varTable.get(token.name);
+	case TokenType::SQRT:
+		return squareRoot(ts, varTable);
 	default:
 		ts.putback(token);
 		throw runtime_error("Expected a primary");
@@ -257,6 +280,8 @@ int main() {
 	cout << "Terminate an expression with ';', exit program by typing 'q'." << endl << endl;
 
 	VarTable varTable;
+	varTable.define("pi", 3.1415926535);
+	varTable.define("e", 2.7182818284);
 
 	while (cin) {
 		cout << prompt;
